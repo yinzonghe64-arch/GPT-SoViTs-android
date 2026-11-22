@@ -1,0 +1,40 @@
+
+name: Export Japanese Frontend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Android project
+        uses: actions/checkout@v4
+
+      - name: Checkout GPT-SoVITS upstream
+        uses: actions/checkout@v4
+        with:
+          repository: RVC-Boss/GPT-SoVITS
+          path: GPT-SoVITS
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Export Japanese symbols
+        run: |
+          python tools/export_japanese_frontend.py \
+            --upstream GPT-SoVITS \
+            --output build/japanese.json
+
+      - name: Upload Japanese frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: japanese-frontend-symbols
+          path: build/japanese.json
+          if-no-files-found: error
