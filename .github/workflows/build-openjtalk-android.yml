@@ -30,15 +30,17 @@ jobs:
 
       - name: Compile OpenJTalk for arm64-v8a
         run: |
-          mkdir -p build/openjtalk/arm64-v8a
+          mkdir -p "$GITHUB_WORKSPACE/build/openjtalk/arm64-v8a"
 
           docker run --rm \
             -v "$GITHUB_WORKSPACE/openjtalk-native:/workspace" \
+            -v "$GITHUB_WORKSPACE/build/openjtalk/arm64-v8a:/output" \
             -w /workspace \
             -e ABIS=arm64-v8a \
             openjtalk-android \
             bash -lc '
               set -e
+
               ./scripts/fetch_dependencies.sh
               ./scripts/build_dependencies_android.sh
 
@@ -52,13 +54,17 @@ jobs:
               cmake --build build --parallel 2
 
               test -f build/lib/libopenjtalk_native.so
+
               cp build/lib/libopenjtalk_native.so \
-                /workspace/../build/openjtalk/arm64-v8a/
+                /output/libopenjtalk_native.so
             '
 
       - name: Generate checksum
         run: |
-          sha256sum build/openjtalk/arm64-v8a/libopenjtalk_native.so \
+          test -f build/openjtalk/arm64-v8a/libopenjtalk_native.so
+
+          sha256sum \
+            build/openjtalk/arm64-v8a/libopenjtalk_native.so \
             > build/openjtalk/arm64-v8a/SHA256SUMS.txt
 
       - name: Upload OpenJTalk library
