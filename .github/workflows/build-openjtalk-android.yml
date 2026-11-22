@@ -21,6 +21,30 @@ jobs:
           repository: ayutaz/openjtalk-native
           path: openjtalk-native
 
+      - name: Download Japanese dictionary
+        run: |
+          set -e
+
+          mkdir -p build/openjtalk/dictionary
+
+          curl -L --fail --retry 3 \
+            "https://sourceforge.net/projects/open-jtalk/files/Dictionary/open_jtalk_dic-1.11/open_jtalk_dic_utf_8-1.11.tar.gz/download" \
+            -o build/openjtalk/dictionary.tar.gz
+
+          echo "33e9cd251bc41aa2bd7ca36f57abbf61eae3543ca25ca892ae345e394cb10549  build/openjtalk/dictionary.tar.gz" \
+            | sha256sum -c -
+
+          tar -xzf build/openjtalk/dictionary.tar.gz \
+            -C build/openjtalk/dictionary \
+            --strip-components=1
+
+          test -f build/openjtalk/dictionary/sys.dic
+          test -f build/openjtalk/dictionary/matrix.bin
+          test -f build/openjtalk/dictionary/char.bin
+          test -f build/openjtalk/dictionary/unk.dic
+
+          rm build/openjtalk/dictionary.tar.gz
+
       - name: Build Android Docker image
         run: |
           docker build \
@@ -59,17 +83,15 @@ jobs:
                 /output/libopenjtalk_native.so
             '
 
-      - name: Generate checksum
+      - name: Generate checksums
         run: |
-          test -f build/openjtalk/arm64-v8a/libopenjtalk_native.so
-
           sha256sum \
             build/openjtalk/arm64-v8a/libopenjtalk_native.so \
             > build/openjtalk/arm64-v8a/SHA256SUMS.txt
 
-      - name: Upload OpenJTalk library
+      - name: Upload OpenJTalk library and dictionary
         uses: actions/upload-artifact@v4
         with:
           name: openjtalk-android-arm64
-          path: build/openjtalk/arm64-v8a/
+          path: build/openjtalk/
           if-no-files-found: error
