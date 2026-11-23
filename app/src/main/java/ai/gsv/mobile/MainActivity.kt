@@ -135,9 +135,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        applySystemBars()
-        GsvRuntime.retainActivity()
+    super.onCreate(savedInstanceState)
+    GsvRuntime.initialize(this)
+    applySystemBars()
+    GsvRuntime.retainActivity()
         val prefs = getSharedPreferences("components", MODE_PRIVATE)
         ModelPackage.restorePipelineArchives(this)
         val loaded = engine.loadedPackage
