@@ -1,3 +1,4 @@
+
 package ai.gsv.mobile
 
 import android.app.Notification
@@ -17,6 +18,7 @@ class LocalOpenAiService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        GsvRuntime.initialize(this)
         GsvRuntime.retainService()
     }
 
